@@ -1,5 +1,14 @@
+#include "prompt.h"
+#include "readexec.h"
 #include <stdio.h>
+#include <unistd.h>
+
+void repl() {
+	prompt();
+	read_n_exec();
+}
 
 int main() {
-	printf("helo\n");
+	while (1)
+		repl();
 }

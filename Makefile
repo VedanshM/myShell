@@ -13,9 +13,12 @@ OBJECTS:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(CFILES))
 DFILES:= $(patsubst %.c,$(DEP_DIR)/%.d,$(CFILES))
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $^ -o $@
 
 include $(DFILES)
+
+debug:CFLAGS+= -g 
+debug: $(TARGET)
 
 $(DEP_DIR)/%.d: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -MM -MP -MT $(OBJ_DIR)/$(*F).o -MT $@ $< -MF $@
