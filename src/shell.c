@@ -12,6 +12,7 @@ void repl() {
 int main() {
 	// constructors
 	assign_names();
+	strcpy(initdir, get_pwd());
 	while (1)
 		repl();
 
