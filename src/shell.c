@@ -1,5 +1,6 @@
 #include "prompt.h"
 #include "readexec.h"
+#include "sysinfo.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -9,6 +10,10 @@ void repl() {
 }
 
 int main() {
+	// constructors
+	assign_names();
 	while (1)
 		repl();
+
+	// destrucotrs
 }
