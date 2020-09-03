@@ -9,11 +9,12 @@
 const char *shellBuiltins[BUILTIN_CNT] = {
 	"echo",
 	"cd",
-	/* "pwd",
+	"pwd",
+	/*
 	"ls",
 	"pinfo" */
 };
-builtin_func_t builtin_funcs[BUILTIN_CNT] = {echo, cd};
+builtin_func_t builtin_funcs[BUILTIN_CNT] = {echo, cd, pwd};
 
 int read_n_exec() {
 	const char *delim = ";";

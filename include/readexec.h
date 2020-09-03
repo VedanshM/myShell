@@ -1,7 +1,7 @@
 #ifndef READEXEC_H
 #define READEXEC_H
 
-#define BUILTIN_CNT 2
+#define BUILTIN_CNT 3
 typedef int (*builtin_func_t)(char **, int);
 
 extern const char *shellBuiltins[BUILTIN_CNT];
