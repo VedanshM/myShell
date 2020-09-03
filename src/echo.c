@@ -6,6 +6,6 @@ int echo(char **args, int n) {
 	for (int i = 0; i < n; i++) {
 		printf("%s ", args[i]);
 	}
-	printf("\b");
+	printf("\n");
 	return 0;
 }

@@ -17,7 +17,7 @@ $(TARGET): $(OBJECTS)
 
 include $(DFILES)
 
-debug:CFLAGS+= -g 
+debug:CFLAGS+= -g -DDEBUG
 debug: $(TARGET)
 
 $(DEP_DIR)/%.d: $(SRC_DIR)/%.c

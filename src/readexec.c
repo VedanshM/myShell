@@ -17,7 +17,8 @@ int read_n_exec() {
 	const char *delim = ";";
 	char *buf = NULL, *saveptr;
 	size_t bufsz = 0;
-	getline(&buf, &bufsz, stdin); //freed at bottom
+	int n = getline(&buf, &bufsz, stdin); //freed at bottom
+	buf[n - 1] = 0;
 	char *command = strtok_r(buf, delim, &saveptr);
 	while (command) {
 		exec(command);

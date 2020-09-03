@@ -1,3 +1,5 @@
+#include "format.h"
+
 int rem_extra_spaces(char *s) {
 	int x = 0;
 	int spcnt = 0;
