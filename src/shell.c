@@ -2,6 +2,7 @@
 #include "readexec.h"
 #include "sysinfo.h"
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 void repl() {
