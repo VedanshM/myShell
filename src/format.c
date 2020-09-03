@@ -25,7 +25,7 @@ int rem_extra_spaces(char *s) {
 	return spcnt;
 }
 
-char *abs_path(char *s) {
+/* char *abs_path(char *s) {
 	char *dir = calloc(PATHMAX, sizeof(char));
 	if (s[0] != '/') {
 		strcpy(dir, get_pwd());
@@ -33,13 +33,14 @@ char *abs_path(char *s) {
 	}
 	strcat(dir, s);
 	char *abs = realpath(dir, NULL);
+	free(dir);
 	if (abs == NULL) {
 		perror("Error in path provided");
 		return NULL;
 	}
 	return abs;
 }
-
+ */
 char *conv_initdir(char *s) { // no malloc only redunction in s
 	int n = strlen(initdir);
 	if (strncmp(s, initdir, n) == 0) {
