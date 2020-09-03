@@ -4,14 +4,20 @@
 #include <unistd.h>
 
 int cd(char **args, int n) {
-	if (n != 1) {
-		printf("Only 1 arg to cd allowed..\n");
+	if (n != 0 && n != 1) {
+		printf("cd should have only 1 or 0 args\n");
 		return -1;
 	}
-	if (chdir(args[0]) == -1) {
+	char *dir;
+	if (n == 1)
+		dir = args[0];
+	else
+		dir = initdir;
+	if (chdir(dir) == -1) {
 		fprintf(stderr, "Directory provided :%s \n", args[0]);
 		perror("Error in cd");
 	}
+
 	return 0;
 }
 
