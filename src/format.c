@@ -1,6 +1,7 @@
 #include "format.h"
 #include "sysinfo.h"
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -45,7 +46,7 @@ char *conv_initdir(char *s) { // no malloc only redunction in s
 		int i;
 		s[0] = '~';
 		for (i = 1; s[i]; i++) {
-			s[i] = s[i + n];
+			s[i] = s[i - 1 + n];
 		}
 		if (s[i - 1] == '/')
 			s[i] = 0;
