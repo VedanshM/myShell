@@ -22,6 +22,8 @@ int read_n_exec() {
 	char *buf = NULL, *saveptr;
 	size_t bufsz = 0;
 	int n = getline(&buf, &bufsz, stdin); //freed at bottom
+	if (n < 0)
+		exit(0);
 	buf[n - 1] = 0;
 	char *command = strtok_r(buf, delim, &saveptr);
 	while (command) {
