@@ -3,12 +3,15 @@
 #include "sysinfo.h"
 #include <dirent.h>
 #include <errno.h>
+#include <grp.h>
 #include <libgen.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 int l, a, echoDir;
@@ -66,14 +69,48 @@ int ls_indv(char *arg) {
 int ls_file(char *fil) { //can handle dirs too for -l compatibilty
 	char *tmp = realpath(fil, NULL);
 	if (tmp == NULL) {
-		fprintf(stderr, "Couldn't ls: %s", fil);
+		fprintf(stderr, "Couldn't ls: %s\n", fil);
 		perror("error");
 		return -1;
 	}
 	if (l == 0) {
 		printf("%s ", basename(fil));
 	} else {
+		struct stat st;
+		stat(tmp, &st);
+		char permsymbols[] = "rwx";
+		char perms[11] = "-"
+						 "---"
+						 "---"
+						 "---";
+		int linkCnt = st.st_nlink;
+		// char *owner :=getpwuid(st.st_uid)->pw_name,
+		// char *grp := getgrgid(st.st_gid)->gr_name;
+		size_t fsize = st.st_size;
+		char tm[32];
+		ctime_r(&st.st_mtime, tm);
+		tm[16] = 0;
+		//basename
+		int mask[3][3] = {
+			{S_IRUSR, S_IWUSR, S_IXUSR},
+			{S_IRGRP, S_IWGRP, S_IXGRP},
+			{S_IROTH, S_IWOTH, S_IXOTH}};
+		if (S_ISDIR(st.st_mode))
+			perms[0] = 'd';
+		for (int i = 0; i < 3; i++)
+			for (int j = 0; j < 3; j++)
+				if (st.st_mode & mask[i][j])
+					perms[1 + 3 * i + j] = permsymbols[j];
+		printf("%s %4d %s %s %10ld %s    %s\n",
+			   perms,
+			   linkCnt,
+			   getpwuid(st.st_uid)->pw_name,
+			   getgrgid(st.st_gid)->gr_name,
+			   fsize,
+			   tm + 4,
+			   basename(fil));
 	}
+
 	return 0;
 }
 
@@ -102,7 +139,7 @@ int ls_dir(char *dirpath) {
 		for (int i = 0; i < nof; i++)
 			tot_blocks += fileBlocks(strcpy(fullpath + n, entries[i]->d_name) - n);
 		tot_blocks /= 2;
-		printf("total: %ld \n", tot_blocks);
+		printf("total %ld \n", tot_blocks);
 	}
 
 	for (int i = 0; i < nof; i++) {
