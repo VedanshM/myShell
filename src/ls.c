@@ -20,6 +20,7 @@ int ls(char **args, int argc) {
 	static char opts[] = "la";
 	int l = 0, a = 0;
 	char c;
+	optind = 0;
 	while ((c = getopt(argc + 1, args - 1, opts)) > 0) {
 		switch (c) {
 		case 'l':
@@ -31,6 +32,11 @@ int ls(char **args, int argc) {
 		default:
 			break;
 		}
+	}
+	if (optind - argc == 1) {
+		ls_dir(".", l, a);
+		printf("\n");
+		return 0;
 	}
 
 	for (int i = optind - 1; i < argc; i++) {
