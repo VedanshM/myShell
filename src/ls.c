@@ -8,7 +8,6 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 int l, a, echoDir;
 
@@ -19,24 +18,24 @@ int filter_hidden(const struct dirent *fil) {
 }
 
 int ls(char **args, int argc) {
-	static char opts[] = "la";
 	l = 0, a = 0;
-	char c;
-	optind = 1;
-	while ((c = getopt(argc, args, opts)) > 0) {
-		switch (c) {
-		case 'l':
-			l = 1;
-			break;
-		case 'a':
-			a = 1;
-			break;
-		default:
-			c = getopt(argc, args, opts);
-			break;
+	int isOpt[argc];
+	isOpt[0] = 1;
+	int no_of_paths = 0;
+	for (int i = 1; i < argc; i++) {
+		if (args[i][0] == '-') {
+			isOpt[i] = 1;
+			for (int j = 0; args[i][j]; j++) {
+				if (args[i][j] == 'l')
+					l = 1;
+				else if (args[i][j] == 'a')
+					a = 1;
+			}
+		} else {
+			isOpt[i] = 0;
+			no_of_paths++;
 		}
 	}
-	int no_of_paths = argc - optind;
 	echoDir = (no_of_paths > 1) ? 1 : 0;
 
 	if (no_of_paths == 0) {
@@ -45,7 +44,9 @@ int ls(char **args, int argc) {
 		return 0;
 	}
 
-	for (int i = optind - 1; i < argc; i++) {
+	for (int i = 1; i < argc; i++) {
+		if (isOpt[i])
+			continue;
 		ls_indv(args[i]);
 		printf("\n");
 	}
