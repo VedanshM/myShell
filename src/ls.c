@@ -32,10 +32,11 @@ int ls(char **args, int argc) {
 			a = 1;
 			break;
 		default:
+			c = getopt(argc, args, opts);
 			break;
 		}
 	}
-	int no_of_paths = optind - argc;
+	int no_of_paths = argc - optind;
 	echoDir = (no_of_paths > 1) ? 1 : 0;
 
 	if (no_of_paths == 0) {
