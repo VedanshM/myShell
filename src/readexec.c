@@ -15,7 +15,12 @@ const char *shellBuiltins[BUILTIN_CNT] = {
 	/*
 	"pinfo" */
 };
-builtin_func_t builtin_funcs[BUILTIN_CNT] = {echo, cd, pwd, ls};
+builtin_func_t builtin_funcs[BUILTIN_CNT] = {
+	echo,
+	cd,
+	pwd,
+	ls,
+};
 
 int read_n_exec() {
 	const char *delim = ";";
