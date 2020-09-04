@@ -10,6 +10,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+int l, a, echoDir;
+
 int filter_hidden(const struct dirent *fil) {
 	if (fil->d_name[0] == '.')
 		return 0;
@@ -18,9 +20,9 @@ int filter_hidden(const struct dirent *fil) {
 
 int ls(char **args, int argc) {
 	static char opts[] = "la";
-	int l = 0, a = 0;
+	l = 0, a = 0;
 	char c;
-	optind = 0;
+	optind = 1;
 	while ((c = getopt(argc + 1, args - 1, opts)) > 0) {
 		switch (c) {
 		case 'l':
@@ -33,25 +35,28 @@ int ls(char **args, int argc) {
 			break;
 		}
 	}
-	if (optind - argc == 1) {
-		ls_dir(".", l, a);
+	int no_of_paths = optind - argc - 1;
+	echoDir = (no_of_paths > 1) ? 1 : 0;
+
+	if (no_of_paths == 0) {
+		ls_dir(".");
 		printf("\n");
 		return 0;
 	}
 
 	for (int i = optind - 1; i < argc; i++) {
-		ls_indv(args[i], l, a);
+		ls_indv(args[i]);
 		printf("\n");
 	}
 	return 0;
 }
 
-int ls_indv(char *arg, int l, int a) {
+int ls_indv(char *arg) {
 	char *path = process_path(arg, 0);
 	struct stat st;
 	stat(path, &st);
 	if (S_ISDIR(st.st_mode)) {
-		ls_dir(path, l, a);
+		ls_dir(path);
 	}
 	free(path);
 	return 0;
@@ -60,8 +65,9 @@ int ls_indv(char *arg, int l, int a) {
 // int ls_fil(char *fil, char *dir, int l, int a) {
 // }
 
-int ls_dir(char *dirpath, int l, int a) {
-	printf("%s:\n", dirpath);
+int ls_dir(char *dirpath) {
+	if (echoDir)
+		printf("%s:\n", dirpath);
 	DIR *dir = opendir(dirpath);
 	if (dir == NULL) {
 		fprintf(stderr, "Error in ls of: %s", dirpath);
