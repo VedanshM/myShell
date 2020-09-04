@@ -46,7 +46,7 @@ int exec(char *cmd) {
 	int i, ret_val = 0;
 	for (i = 0; i < BUILTIN_CNT; i++) {
 		if (strcmp(shellBuiltins[i], words[0]) == 0) {
-			ret_val = builtin_funcs[i](words + 1, wcnt - 1);
+			ret_val = builtin_funcs[i](words, wcnt);
 			break;
 		}
 	}

@@ -6,13 +6,13 @@
 #include <string.h>
 #include <unistd.h>
 
-int cd(char **args, int n) {
-	if (n != 0 && n != 1) {
+int cd(char **args, int argc) {
+	if (argc != 1 && argc != 2) {
 		printf("cd should have only 1 or 0 args\n");
 		return -1;
 	}
-	if (n == 1) {
-		char *dir = process_path(args[0], 0);
+	if (argc == 2) {
+		char *dir = process_path(args[1], 0);
 
 		if (chdir(dir) == -1) {
 			fprintf(stderr, "Directory provided :%s \n", dir);
@@ -33,9 +33,9 @@ int cd(char **args, int n) {
 	return 0;
 }
 
-int pwd(char **args, int n) {
+int pwd(char **args, int argc) {
 	printf("%s\n", get_pwd());
-	if (n != 0) {
+	if (argc != 1) {
 		fprintf(stderr, "pwd should have no args");
 	}
 	return 0;

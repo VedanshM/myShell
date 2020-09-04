@@ -23,7 +23,7 @@ int ls(char **args, int argc) {
 	l = 0, a = 0;
 	char c;
 	optind = 1;
-	while ((c = getopt(argc + 1, args - 1, opts)) > 0) {
+	while ((c = getopt(argc, args, opts)) > 0) {
 		switch (c) {
 		case 'l':
 			l = 1;
@@ -35,7 +35,7 @@ int ls(char **args, int argc) {
 			break;
 		}
 	}
-	int no_of_paths = optind - argc - 1;
+	int no_of_paths = optind - argc;
 	echoDir = (no_of_paths > 1) ? 1 : 0;
 
 	if (no_of_paths == 0) {
