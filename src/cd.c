@@ -1,4 +1,5 @@
 #include "cd.h"
+#include "format.h"
 #include "sysinfo.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,15 +12,7 @@ int cd(char **args, int n) {
 		return -1;
 	}
 	if (n == 1) {
-		char *dir = calloc(PATHMAX, sizeof(char));
-		if (args[0][0] == '~') {
-			strcpy(dir, initdir);
-			int i = strlen(dir);
-			dir[i] = '/';
-			i++;
-			strcpy(dir + i, args[0] + 1);
-		} else
-			strcpy(dir, args[0]);
+		char *dir = process_path(args[0], 0);
 
 		if (chdir(dir) == -1) {
 			fprintf(stderr, "Directory provided :%s \n", dir);

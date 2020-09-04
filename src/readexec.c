@@ -2,6 +2,7 @@
 #include "cd.h"
 #include "echo.h"
 #include "format.h"
+#include "ls.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,11 +11,11 @@ const char *shellBuiltins[BUILTIN_CNT] = {
 	"echo",
 	"cd",
 	"pwd",
-	/*
 	"ls",
+	/*
 	"pinfo" */
 };
-builtin_func_t builtin_funcs[BUILTIN_CNT] = {echo, cd, pwd};
+builtin_func_t builtin_funcs[BUILTIN_CNT] = {echo, cd, pwd, ls};
 
 int read_n_exec() {
 	const char *delim = ";";
