@@ -3,9 +3,12 @@
 #include "echo.h"
 #include "format.h"
 #include "ls.h"
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 const char *shellBuiltins[BUILTIN_CNT] = {
 	"echo",
@@ -50,10 +53,21 @@ int execute(char *s) {
 		}
 	}
 	if (i == BUILTIN_CNT) {
+		execute_child(cmd);
 	}
 	destory_command(cmd);
 	return ret_val;
 }
 
-int execute_child(char **args, int argc) {
+int execute_child(command *cmd) {
+	int forkpid = fork();
+	if (forkpid < 0) {
+		fprintf(stderr, "Couldn't execute %s", cmd->args[0]);
+		perror("error");
+	} else if (forkpid == 0) {
+		execvp(cmd->args[0], cmd->args);
+	} else {
+		wait(NULL);
+	}
+	return 0;
 }
