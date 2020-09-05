@@ -13,4 +13,8 @@ int read_n_exec();
 int execute(char *s);
 // accepts a command and execs it
 
+int execute_child(char **args, int argc);
+// accepts a null terminated list of strings
+// and execs it in childprocess
+
 #endif

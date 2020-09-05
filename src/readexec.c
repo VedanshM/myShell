@@ -1,5 +1,6 @@
 #include "readexec.h"
 #include "cd.h"
+#include "command.h"
 #include "echo.h"
 #include "format.h"
 #include "ls.h"
@@ -39,30 +40,21 @@ int read_n_exec() {
 	return 0;
 }
 
-int execute(char *cmd) {
-	// cmd to be freed by caller
-	char *saveptr;
-	int wcnt = 1 + rem_extra_spaces(cmd);
-	char **words = calloc(1 + wcnt, sizeof(char *)); //free at bottom
-	// last pointer is should be NULL
-
-	char *c = strtok_r(cmd, " ", &saveptr);
-	for (int i = 0; i < wcnt; i++) {
-		words[i] = calloc(strlen(c), sizeof(c[0])); //free at bottom
-		strcat(words[i], c);
-		c = strtok_r(NULL, " ", &saveptr);
-	}
+int execute(char *s) {
+	// s to be freed by caller
+	command *cmd = create_command(s);
 	int i, ret_val = 0;
 	for (i = 0; i < BUILTIN_CNT; i++) {
-		if (strcmp(shellBuiltins[i], words[0]) == 0) {
-			ret_val = builtin_funcs[i](words, wcnt);
+		if (strcmp(shellBuiltins[i], cmd->args[0]) == 0) {
+			ret_val = builtin_funcs[i](cmd->args, cmd->argc);
 			break;
 		}
 	}
 	if (i == BUILTIN_CNT) {
-		}
-	for (int i = 0; i < wcnt; i++)
-		free(words[i]);
-	free(words);
+	}
+	destory_command(cmd);
 	return ret_val;
+}
+
+int execute_child(char **args, int argc) {
 }
