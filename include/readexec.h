@@ -1,8 +1,10 @@
 #ifndef READEXEC_H
 #define READEXEC_H
 
+#include "command.h"
+
 #define BUILTIN_CNT 4
-typedef int (*builtin_func_t)(char **, int);
+typedef int (*builtin_func_t)(command *cmd);
 
 extern const char *shellBuiltins[BUILTIN_CNT];
 extern builtin_func_t builtin_funcs[BUILTIN_CNT];

@@ -1,6 +1,5 @@
 #include "readexec.h"
 #include "cd.h"
-#include "command.h"
 #include "echo.h"
 #include "format.h"
 #include "ls.h"
@@ -46,7 +45,7 @@ int execute(char *s) {
 	int i, ret_val = 0;
 	for (i = 0; i < BUILTIN_CNT; i++) {
 		if (strcmp(shellBuiltins[i], cmd->args[0]) == 0) {
-			ret_val = builtin_funcs[i](cmd->args, cmd->argc);
+			ret_val = builtin_funcs[i](cmd);
 			break;
 		}
 	}
