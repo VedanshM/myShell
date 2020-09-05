@@ -10,7 +10,7 @@ extern builtin_func_t builtin_funcs[BUILTIN_CNT];
 int read_n_exec();
 //scans a line from stdin and divides into commands and execs them
 
-int exec(char *s);
+int execute(char *s);
 // accepts a command and execs it
 
 #endif

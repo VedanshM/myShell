@@ -32,21 +32,23 @@ int read_n_exec() {
 	buf[n - 1] = 0;
 	char *command = strtok_r(buf, delim, &saveptr);
 	while (command) {
-		exec(command);
+		execute(command);
 		command = strtok_r(NULL, delim, &saveptr);
 	}
 	free(buf);
 	return 0;
 }
 
-int exec(char *cmd) {
+int execute(char *cmd) {
 	// cmd to be freed by caller
 	char *saveptr;
 	int wcnt = 1 + rem_extra_spaces(cmd);
-	char **words = calloc(wcnt, sizeof(char *)); //freed at bottom
+	char **words = calloc(1 + wcnt, sizeof(char *)); //free at bottom
+	// last pointer is should be NULL
+
 	char *c = strtok_r(cmd, " ", &saveptr);
 	for (int i = 0; i < wcnt; i++) {
-		words[i] = calloc(strlen(c), sizeof(c[0])); //freed at bottom
+		words[i] = calloc(strlen(c), sizeof(c[0])); //free at bottom
 		strcat(words[i], c);
 		c = strtok_r(NULL, " ", &saveptr);
 	}
@@ -58,8 +60,7 @@ int exec(char *cmd) {
 		}
 	}
 	if (i == BUILTIN_CNT) {
-		//TODO
-	}
+		}
 	for (int i = 0; i < wcnt; i++)
 		free(words[i]);
 	free(words);
