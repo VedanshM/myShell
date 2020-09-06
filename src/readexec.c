@@ -61,16 +61,16 @@ int execute(char *s) {
 
 int execute_child(command *cmd) {
 	int forkpid = fork();
-	if (forkpid < 0) {
-		fprintf(stderr, "Couldn't execute %s", cmd->args[0]);
+	if (forkpid < 0) { //error in fork no child created
+		fprintf(stderr, "Couldn't execute %s\n", cmd->args[0]);
 		perror("error");
-	} else if (forkpid == 0) {
+	} else if (forkpid == 0) { //in child
 		if (execvp(cmd->args[0], cmd->args) == -1) {
 			fprintf(stderr, "%s : command not found\n%s : ", cmd->args[0], cmd->args[0]);
 			perror("");
 			exit(1);
 		}
-	} else {
+	} else { // in parent process
 		wait(NULL);
 	}
 	return 0;
