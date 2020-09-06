@@ -65,7 +65,11 @@ int execute_child(command *cmd) {
 		fprintf(stderr, "Couldn't execute %s", cmd->args[0]);
 		perror("error");
 	} else if (forkpid == 0) {
-		execvp(cmd->args[0], cmd->args);
+		if (execvp(cmd->args[0], cmd->args) == -1) {
+			fprintf(stderr, "%s : command not found\n%s : ", cmd->args[0], cmd->args[0]);
+			perror("");
+			exit(1);
+		}
 	} else {
 		wait(NULL);
 	}
