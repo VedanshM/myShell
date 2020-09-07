@@ -1,3 +1,4 @@
+#include "format.h"
 #include "prompt.h"
 #include "readexec.h"
 #include "signals.h"
@@ -7,24 +8,18 @@
 #include <unistd.h>
 
 void initSetup();
-void repl();
 void lastSetup();
 
 int main() {
 	initSetup();
-	repl();
+	do {
+		prompt();
+	} while (read_n_exec() == 0);
 	lastSetup();
 }
 
-void repl() {
-	while (1) {
-		prompt();
-		if (read_n_exec() != 0)
-			return;
-	}
-}
-
 void initSetup() {
+	printf("\t\t\t" BLU_COL " >> Welcome to myShell << " RST_COL "\n");
 	assign_names();
 	strcpy(initdir, get_pwd());
 	init_sig_setup();

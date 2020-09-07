@@ -34,7 +34,7 @@ int read_n_exec() {
 	size_t bufsz = 0;
 	int n = getline(&buf, &bufsz, stdin); //freed at bottom
 	if (n < 0)
-		exit(0);
+		return 1;
 	buf[n - 1] = 0;
 	char *command = strtok_r(buf, delim, &saveptr);
 	while (command) {

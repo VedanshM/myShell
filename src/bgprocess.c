@@ -1,5 +1,6 @@
 #include "bgprocess.h"
 #include "command.h"
+#include "format.h"
 #include "prompt.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,7 +40,7 @@ void remove_bg(int sig) {
 					i++;
 				}
 				bglist_size--;
-				printf("\r\033[K");
+				printf("\r" CLEAR_AFTER);
 				fflush(stdout);
 				fprintf(stderr, "%s with pid %d exited %s\n", cmdname, deadpid,
 						((WIFEXITED(status) ? "normally" : "abnormally")));
