@@ -1,9 +1,11 @@
 #include "readexec.h"
+#include "bgprocess.h"
 #include "cd.h"
 #include "echo.h"
 #include "format.h"
 #include "ls.h"
 #include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,13 +67,26 @@ int execute_child(command *cmd) {
 		fprintf(stderr, "Couldn't execute %s\n", cmd->args[0]);
 		perror("error");
 	} else if (forkpid == 0) { //in child
+		setpgid(0, 0);
 		if (execvp(cmd->args[0], cmd->args) == -1) {
 			fprintf(stderr, "%s : command not found\n%s : ", cmd->args[0], cmd->args[0]);
 			perror("");
 			exit(1);
 		}
 	} else { // in parent process
-		wait(NULL);
+		if (!cmd->is_bg) {
+			signal(SIGTTIN, SIG_IGN); // to prevent defalut behaviouur of killing process
+			signal(SIGTTOU, SIG_IGN);
+			tcsetpgrp(0, forkpid); //giving control to child
+			int status;
+			waitpid(forkpid, &status, WUNTRACED); //waiting for child to finish
+			tcsetpgrp(0, getpgrp());			  // taking control back
+			signal(SIGTTIN, SIG_DFL);
+			signal(SIGTTOU, SIG_DFL);
+
+		} else {
+			make_bg(cmd, forkpid);
+		}
 	}
 	return 0;
 }

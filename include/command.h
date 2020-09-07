@@ -2,8 +2,10 @@
 #define COMMAND_H
 
 typedef struct command {
-	char **args;
+	char **args; // * to 1+argc pointers, extra 1 for NULL
 	int argc;
+
+	char is_bg;
 } command;
 
 command *create_command(char *s);
