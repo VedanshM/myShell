@@ -4,6 +4,7 @@
 #include "echo.h"
 #include "format.h"
 #include "ls.h"
+#include "pinfo.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
@@ -17,14 +18,14 @@ const char *shellBuiltins[BUILTIN_CNT] = {
 	"cd",
 	"pwd",
 	"ls",
-	/*
-	"pinfo" */
+	"pinfo",
 };
 builtin_func_t builtin_funcs[BUILTIN_CNT] = {
 	echo,
 	cd,
 	pwd,
 	ls,
+	pinfo,
 };
 
 int read_n_exec() {
