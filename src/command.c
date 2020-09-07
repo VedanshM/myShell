@@ -27,8 +27,8 @@ command *create_command(char *s) {
 			cmd->is_bg = 1;
 			cmd->args[cmd->argc - 1] = realloc(cmd->args[cmd->argc - 1], n);
 			cmd->args[cmd->argc - 1][n - 1] = 0;
-		}
-		cmd->is_bg = 0;
+		} else
+			cmd->is_bg = 0;
 	}
 	return cmd;
 }
