@@ -16,7 +16,9 @@
 
 int l, a, echoDir;
 
-int ls(char **args, int argc) {
+int ls(command *cmd) {
+	int argc = cmd->argc;
+	char **args = cmd->args;
 	l = 0, a = 0;
 	int isOpt[argc];
 	isOpt[0] = 1;

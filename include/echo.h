@@ -1,6 +1,7 @@
 #ifndef ECHO_H
 #define ECHO_H
+#include "command.h"
 
-int echo(char **args, int n);
+int echo(command *cmd);
 
 #endif

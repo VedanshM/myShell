@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 void prompt() {
-	printf("\033[1;34m"); //sets to blue
-	printf("<%s@%s: %s >>", username, hostname, conv_initdir(get_pwd()));
-	printf("\033[0m"); // reset
+	printf(GRN_COL "<%s@%s: " BLU_COL "%s" GRN_COL " >>" RST_COL,
+		   username, hostname, conv_initdir(get_pwd()));
 }

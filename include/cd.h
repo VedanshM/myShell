@@ -1,10 +1,11 @@
 #ifndef CD_H
 #define CD_H
+#include "command.h"
 
-int cd(char **args, int n);
+int cd(command *cmd);
 // changes working dir
 
-int pwd(char **args, int n);
+int pwd(command *cmd);
 //returns pwd in static array
 
 #endif
