@@ -12,6 +12,8 @@ int do_io(char *s, int n);
 // diplays s and return 0  if quit detected
 // also sleeps for n sec while waiting
 
+void interrupt(int n);
+
 int nightswatch(command *cmd) {
 	static const char *options[SUPPORTED_OPT_COUNT] = {
 		"interrupt",
@@ -86,8 +88,9 @@ int do_io(char *s, int n) {
 	int avail = 1;
 	sleep(n);
 	ioctl(STDIN_FILENO, FIONREAD, &avail);
-
+	//reset state
 	tcsetattr(STDIN_FILENO, TCSANOW, &attributes);
+
 	while (avail > 0) {
 		if (getchar() == 'q') {
 			return 0; // no more io

@@ -4,6 +4,4 @@
 
 int nightswatch(command *cmd);
 
-void interrupt(int n);
-
 #endif
