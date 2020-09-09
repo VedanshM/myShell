@@ -56,13 +56,11 @@ int history(command *cmd) {
 void pushHist(char *line) {
 	//assumes line ends at \n
 	char *tmp = strdup(line);
-	int n = strlen(tmp);
-	tmp[n - 1] = 0;
 	if (is_blankcmd(tmp)) {
 		free(tmp);
 		return;
-	} else
-		tmp[n - 1] = '\n';
+	}
+
 	if (line_start == -1) {
 		line_start = 0;
 		line_end = 1;
@@ -93,13 +91,20 @@ void hist_setup() {
 	}
 	size_t n = 0;
 	int i = 0;
-	while (i < 20 && getline(&hist_lines[i], &n, fil) > 0) {
-		i++;
+	while (i < 20) {
+		if (getline(&hist_lines[i], &n, fil) <= 0) {
+			free(hist_lines[i]);
+			break;
+		}
+		if (is_blankcmd(hist_lines[i]))
+			free(hist_lines[i]);
+		else
+			i++;
 		n = 0;
 	}
 	fclose(fil);
 	if (i > 0)
-		line_start = 0, line_end = i - 1;
+		line_start = 0, line_end = i % HISTFILESIZE;
 }
 
 void hist_dumpback() {

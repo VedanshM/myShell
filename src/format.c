@@ -45,9 +45,19 @@ char *process_path(char *s, int append_pwd) {
 }
 
 int is_blankcmd(char *s) {
+	const char *blanks[5] = {
+		"",
+		"\n",
+		"&",
+		"&\n",
+		"& \n",
+	};
 	char *tmp = strdup(s);
 	rem_extra_spaces(tmp);
-	int ret = (tmp[0] == 0) || (strcmp(tmp, "&") == 0);
+	int ret = 0;
+	for (int i = 0; i < 5; i++)
+		if (strcmp(tmp, blanks[i]) == 0)
+			ret = 1;
 	free(tmp);
 	return ret;
 }
