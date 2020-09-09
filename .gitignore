@@ -1,4 +1,5 @@
 mysh
+.mysh_history
 .vscode
 # Prerequisites
 *.d
