@@ -1,7 +1,7 @@
 #include "builtins.h"
 #include <string.h>
 
-#define BUILTIN_CNT 7
+#define BUILTIN_CNT 8
 typedef int (*builtin_func_t)(command *cmd);
 
 const char *shellBuiltins[BUILTIN_CNT] = {
@@ -11,6 +11,7 @@ const char *shellBuiltins[BUILTIN_CNT] = {
 	"ls",
 	"pinfo",
 	"history",
+	"nightswatch",
 	"quit",
 };
 builtin_func_t builtin_funcs[BUILTIN_CNT] = {
@@ -20,6 +21,7 @@ builtin_func_t builtin_funcs[BUILTIN_CNT] = {
 	ls,
 	pinfo,
 	history,
+	nightswatch,
 	quit,
 };
 

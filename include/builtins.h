@@ -5,6 +5,7 @@
 #include "echo.h"
 #include "history.h"
 #include "ls.h"
+#include "nightswatch.h"
 #include "pinfo.h"
 #include "quit.h"
 
