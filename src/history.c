@@ -1,4 +1,5 @@
 #include "history.h"
+#include "format.h"
 #include "sysinfo.h"
 #include <errno.h>
 #include <stdio.h>
@@ -55,6 +56,13 @@ int history(command *cmd) {
 void pushHist(char *line) {
 	//assumes line ends at \n
 	char *tmp = strdup(line);
+	int n = strlen(tmp);
+	tmp[n - 1] = 0;
+	if (is_blankcmd(tmp)) {
+		free(tmp);
+		return;
+	} else
+		tmp[n - 1] = '\n';
 	if (line_start == -1) {
 		line_start = 0;
 		line_end = 1;

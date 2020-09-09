@@ -31,6 +31,9 @@ int read_n_exec() {
 int execute(char *s) {
 	// s to be freed by caller
 	command *cmd = create_command(s);
+	if (!cmd) { // only spaces provided
+		return 0;
+	}
 	if (!exec_builtin(cmd)) {
 		execute_child(cmd);
 	}

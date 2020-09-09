@@ -20,7 +20,9 @@ int rem_extra_spaces(char *s);
 char *process_path(char *s, int append_pwd);
 // returns a path(using malloc) to handle cases of home, abs and pwd paths
 
-char *conv_initdir(char *s);
+char *intidir_to_tilda(char *s);
 //converts initdir to ~
+
+int is_blankcmd(char *s);
 
 #endif

@@ -44,7 +44,15 @@ char *process_path(char *s, int append_pwd) {
 	return path;
 }
 
-char *conv_initdir(char *s) { // no malloc only redunction in s
+int is_blankcmd(char *s) {
+	char *tmp = strdup(s);
+	rem_extra_spaces(tmp);
+	int ret = (tmp[0] == 0) || (strcmp(tmp, "&") == 0);
+	free(tmp);
+	return ret;
+}
+
+char *intidir_to_tilda(char *s) { // no malloc only redunction in s
 	int n = strlen(initdir);
 	if (strncmp(s, initdir, n) == 0) {
 		int i;

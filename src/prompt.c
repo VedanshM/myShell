@@ -5,5 +5,5 @@
 
 void prompt() {
 	printf(GRN_COL "<%s@%s: " BLU_COL "%s" GRN_COL " >>" RST_COL,
-		   username, hostname, conv_initdir(get_pwd()));
+		   username, hostname, intidir_to_tilda(get_pwd()));
 }

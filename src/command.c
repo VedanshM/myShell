@@ -4,6 +4,8 @@
 #include <string.h>
 
 command *create_command(char *s) {
+	if (is_blankcmd(s))
+		return NULL;
 	command *cmd = malloc(sizeof(command));
 	cmd->argc = 1 + rem_extra_spaces(s);
 	cmd->args = calloc(1 + cmd->argc, sizeof(char *));
