@@ -20,6 +20,7 @@ const char *shellBuiltins[BUILTIN_CNT] = {
 	"pwd",
 	"ls",
 	"pinfo",
+	"history",
 };
 builtin_func_t builtin_funcs[BUILTIN_CNT] = {
 	echo,
@@ -27,6 +28,7 @@ builtin_func_t builtin_funcs[BUILTIN_CNT] = {
 	pwd,
 	ls,
 	pinfo,
+	history,
 };
 
 int read_n_exec() {

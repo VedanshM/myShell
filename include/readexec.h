@@ -3,7 +3,7 @@
 
 #include "command.h"
 
-#define BUILTIN_CNT 5
+#define BUILTIN_CNT 6
 typedef int (*builtin_func_t)(command *cmd);
 
 extern const char *shellBuiltins[BUILTIN_CNT];

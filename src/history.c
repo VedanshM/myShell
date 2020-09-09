@@ -16,6 +16,42 @@ int line_start = -1, line_end = -1;
  * s = e != -1 when full
  */
 
+int history(command *cmd) {
+	int n = HISTSIZE;
+	if (cmd->argc > 2) {
+		fprintf(stderr, "Only 1 argument allowed\n");
+		return -1;
+	} else if (cmd->argc == 2) {
+		errno = 0;
+		n = strtol(cmd->args[1], NULL, 10);
+		if (errno != 0) {
+			perror("error in history");
+			return -1;
+		}
+		if (n > HISTFILESIZE) {
+			printf("Only %d commands are stored!!\n", HISTFILESIZE);
+			n = HISTFILESIZE;
+		}
+	}
+	if (n <= 0 || line_start == -1)
+		return 0;
+	// now there is atleast one command to be shown
+	// from a non empty hist
+
+	int i = line_end - n;
+	if (line_start == line_end) {
+		if (i < 0)
+			i += HISTFILESIZE;
+	} else if (i < 0)
+		i = 0;
+	do {
+		printf("%s", hist_lines[i]);
+		i++;
+		i %= HISTFILESIZE;
+	} while (i != line_end);
+	return 0;
+}
+
 void pushHist(char *line) {
 	//assumes line ends at \n
 	char *tmp = strdup(line);
