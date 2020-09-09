@@ -6,6 +6,7 @@
 #include "history.h"
 #include "ls.h"
 #include "pinfo.h"
+#include "quit.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
@@ -21,6 +22,7 @@ const char *shellBuiltins[BUILTIN_CNT] = {
 	"ls",
 	"pinfo",
 	"history",
+	"quit",
 };
 builtin_func_t builtin_funcs[BUILTIN_CNT] = {
 	echo,
@@ -29,6 +31,7 @@ builtin_func_t builtin_funcs[BUILTIN_CNT] = {
 	ls,
 	pinfo,
 	history,
+	quit,
 };
 
 int read_n_exec() {

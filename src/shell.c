@@ -1,3 +1,4 @@
+#include "shell.h"
 #include "format.h"
 #include "history.h"
 #include "prompt.h"
@@ -7,9 +8,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-
-void initSetup();
-void lastSetup();
 
 int main() {
 	initSetup();
