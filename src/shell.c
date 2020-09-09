@@ -1,4 +1,5 @@
 #include "format.h"
+#include "history.h"
 #include "prompt.h"
 #include "readexec.h"
 #include "signals.h"
@@ -19,12 +20,14 @@ int main() {
 }
 
 void initSetup() {
+	strcpy(initdir, get_pwd());
 	printf("\t\t\t" BLU_COL " >> Welcome to myShell << " RST_COL "\n");
 	assign_names();
-	strcpy(initdir, get_pwd());
 	init_sig_setup();
+	hist_setup();
 }
 
 void lastSetup() {
-	printf("bye!!");
+	printf("\n" BLU_COL "bye!!" RST_COL "\n");
+	hist_dumpback();
 }

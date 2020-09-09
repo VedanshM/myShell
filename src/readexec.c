@@ -3,6 +3,7 @@
 #include "cd.h"
 #include "echo.h"
 #include "format.h"
+#include "history.h"
 #include "ls.h"
 #include "nightswatch.h"
 #include "pinfo.h"
@@ -21,6 +22,7 @@ const char *shellBuiltins[BUILTIN_CNT] = {
 	"ls",
 	"pinfo",
 	"nightswatch",
+	"history",
 };
 builtin_func_t builtin_funcs[BUILTIN_CNT] = {
 	echo,
@@ -29,6 +31,7 @@ builtin_func_t builtin_funcs[BUILTIN_CNT] = {
 	ls,
 	pinfo,
 	nightswatch,
+	history,
 };
 
 int read_n_exec() {
@@ -38,6 +41,7 @@ int read_n_exec() {
 	int n = getline(&buf, &bufsz, stdin); //freed at bottom
 	if (n < 0)
 		return 1;
+	pushHist(buf);
 	buf[n - 1] = 0;
 	char *command = strtok_r(buf, delim, &saveptr);
 	while (command) {
