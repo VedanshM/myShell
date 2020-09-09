@@ -6,20 +6,23 @@
 #include <termios.h>
 #include <unistd.h>
 
-#define SUPPORTED_OPT_COUNT 1
+#define SUPPORTED_OPT_COUNT 2
 
 int do_io(char *s, int n);
 // diplays s and return 0  if quit detected
 // also sleeps for n sec while waiting
 
 void interrupt(int n);
+void newborn(int n);
 
 int nightswatch(command *cmd) {
 	static const char *options[SUPPORTED_OPT_COUNT] = {
 		"interrupt",
+		"newborn",
 	};
 	static const void (*optFuncs[SUPPORTED_OPT_COUNT])(int) = {
 		interrupt,
+		newborn,
 	};
 
 	if (cmd->argc != 4) {
@@ -39,6 +42,28 @@ int nightswatch(command *cmd) {
 		}
 	}
 	return 0;
+}
+
+void newborn(int n) {
+	char line[256] = {0};
+	static const char *load_file = "/proc/loadavg";
+	FILE *fil = fopen(load_file, "r");
+	if (!fil) {
+		perror("error in /proc/loadavg");
+		return;
+	}
+	fclose(fil);
+	char *lastproc;
+	do {
+		fil = fopen(load_file, "r");
+		if (!fgets(line, sizeof(line), fil)) {
+			fprintf(stderr, "could not read from %s\n", load_file);
+			return;
+		}
+		fclose(fil);
+		lastproc = strrchr(line, ' ') + 1;
+		*(strchr(line, '\n')) = 0;
+	} while (do_io(lastproc, n));
 }
 
 void interrupt(int n) {
