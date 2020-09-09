@@ -1,12 +1,7 @@
 #include "readexec.h"
 #include "bgprocess.h"
-#include "cd.h"
-#include "echo.h"
+#include "builtins.h"
 #include "format.h"
-#include "history.h"
-#include "ls.h"
-#include "nightswatch.h"
-#include "pinfo.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
@@ -14,25 +9,6 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
-const char *shellBuiltins[BUILTIN_CNT] = {
-	"echo",
-	"cd",
-	"pwd",
-	"ls",
-	"pinfo",
-	"nightswatch",
-	"history",
-};
-builtin_func_t builtin_funcs[BUILTIN_CNT] = {
-	echo,
-	cd,
-	pwd,
-	ls,
-	pinfo,
-	nightswatch,
-	history,
-};
 
 int read_n_exec() {
 	const char *delim = ";";
@@ -55,18 +31,11 @@ int read_n_exec() {
 int execute(char *s) {
 	// s to be freed by caller
 	command *cmd = create_command(s);
-	int i, ret_val = 0;
-	for (i = 0; i < BUILTIN_CNT; i++) {
-		if (strcmp(shellBuiltins[i], cmd->args[0]) == 0) {
-			ret_val = builtin_funcs[i](cmd);
-			break;
-		}
-	}
-	if (i == BUILTIN_CNT) {
+	if (!exec_builtin(cmd)) {
 		execute_child(cmd);
 	}
 	destory_command(cmd);
-	return ret_val;
+	return 0;
 }
 
 int execute_child(command *cmd) {
