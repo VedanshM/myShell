@@ -25,6 +25,39 @@ int rem_extra_spaces(char *s) {
 	return spcnt;
 }
 
+char *add_req_spaces(char *s) {
+	// s should be a malloced array
+	const int speccnt = 4;
+	const char *specstr[4] = {
+		"&",
+		"<",
+		">",
+		">>",
+	};
+	int n = strlen(s);
+	s = realloc(s, n + 1 + 2 * speccnt);
+	char *pos;
+	for (int i = 0; i < speccnt; i++) {
+		char *findstart = s;
+		while ((pos = strstr(findstart, specstr[i]))) {
+			if (pos - s > 0 && *(pos - 1) != ' ') {
+				memmove(pos + 1, pos, (s + n) - pos);
+				*(pos) = ' ';
+				n++;
+				pos++;
+			}
+			if (*(pos + 1) && *(pos + 1) != ' ') {
+				char *nxt = pos + strlen(specstr[i]);
+				memmove(nxt + 1, nxt, (s + n) - nxt);
+				*nxt = ' ';
+				n++;
+			}
+			findstart = pos + 1;
+		}
+	}
+	return realloc(s, n + 1);
+}
+
 char *process_path(char *s, int append_pwd) {
 	char *path = calloc(PATHMAX, sizeof(char));
 	if (s[0] == '/') {

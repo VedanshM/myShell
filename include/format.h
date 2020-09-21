@@ -17,6 +17,10 @@
 int rem_extra_spaces(char *s);
 //remove multiplespaces, tabs and extra leading/trainling spaces
 
+char* add_req_spaces(char *s);
+// add spaces around special symbols like ">", "&" etc.
+// s should be a malloced array
+
 char *process_path(char *s, int append_pwd);
 // returns a path(using malloc) to handle cases of home, abs and pwd paths
 

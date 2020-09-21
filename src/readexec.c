@@ -64,9 +64,13 @@ int execute_pipe_splits(char *s) {
 	if (!cmd) { // only spaces provided
 		return 0;
 	}
+
+	int oldfd[2];
+	setRedirection(cmd, oldfd);
 	if (!exec_builtin(cmd)) {
 		execute_child(cmd);
 	}
+	resetRedirection(oldfd);
 	destory_command(cmd);
 	return 0;
 }
