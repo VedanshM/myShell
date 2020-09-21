@@ -3,6 +3,7 @@
 
 #include "cd.h"
 #include "echo.h"
+#include "env.h"
 #include "history.h"
 #include "ls.h"
 #include "nightswatch.h"
