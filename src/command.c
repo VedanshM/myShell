@@ -39,6 +39,8 @@ command *create_command(char *inp) {
 			fd = open(cmd->args[i + 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
 			if (fd < 0) {
 				perror("could not set redirection 'append'");
+				destory_command(cmd);
+				return NULL;
 			} else {
 				cmd->out_fd = fd;
 			}
@@ -51,6 +53,8 @@ command *create_command(char *inp) {
 			fd = open(cmd->args[i + 1], O_WRONLY | O_TRUNC | O_CREAT, 0644);
 			if (fd < 0) {
 				perror("could not set redirection 'out'");
+				destory_command(cmd);
+				return NULL;
 			} else {
 				cmd->out_fd = fd;
 			}
@@ -64,6 +68,9 @@ command *create_command(char *inp) {
 			fd = open(cmd->args[i + 1], O_RDONLY);
 			if (fd < 0) {
 				perror("could not set redirection 'in'");
+				destory_command(cmd);
+				return NULL;
+
 			} else {
 				cmd->in_fd = fd;
 			}
