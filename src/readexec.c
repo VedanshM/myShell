@@ -21,14 +21,44 @@ int read_n_exec() {
 	buf[n - 1] = 0;
 	char *command = strtok_r(buf, delim, &saveptr);
 	while (command) {
-		execute(command);
+		execute_semicolon_splits(command);
 		command = strtok_r(NULL, delim, &saveptr);
 	}
 	free(buf);
 	return 0;
 }
 
-int execute(char *s) {
+int execute_semicolon_splits(char *s) {
+	char **piped_segments;
+	int segcnt = split_by_pipes(s, &piped_segments);
+
+	int orgSTDIN = dup(STDIN_FILENO), orgSTDOUT = dup(STDOUT_FILENO);
+
+	int pipe_fds[2];
+	for (int i = 0; i < segcnt; i++) {
+		//stdin set properly only tweek stdout
+		if (i != segcnt - 1) {
+			pipe(pipe_fds);
+			dup2(pipe_fds[1], STDOUT_FILENO);
+			close(pipe_fds[1]); //open only in stdout now
+			execute_pipe_splits(piped_segments[i]);
+			dup2(pipe_fds[0], STDIN_FILENO);
+			close(pipe_fds[0]); //open only in stdin now
+
+		} else {
+			dup2(orgSTDOUT, STDOUT_FILENO);
+			execute_pipe_splits(piped_segments[i]);
+		}
+	}
+	destroy_pipesplits(piped_segments, segcnt);
+	dup2(orgSTDIN, STDIN_FILENO);
+	dup2(orgSTDOUT, STDOUT_FILENO);
+	close(orgSTDIN);  //open only in stdin now
+	close(orgSTDOUT); //open only in stdout now
+	return 0;
+}
+
+int execute_pipe_splits(char *s) {
 	// s to be freed by caller
 	command *cmd = create_command(s);
 	if (!cmd) { // only spaces provided

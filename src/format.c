@@ -75,3 +75,31 @@ char *intidir_to_tilda(char *s) { // no malloc only redunction in s
 	}
 	return s;
 }
+
+int countchar(char *s, char c) {
+	int cnt = 0;
+	while (*s)
+		if (*(s++) == c)
+			cnt++;
+	return cnt;
+}
+
+int split_by_pipes(char *inp, char ***pipedCmds) {
+	int segment_cnt = countchar(inp, '|') + 1;
+	*pipedCmds = malloc(sizeof(char *) * segment_cnt);
+	char *s = inp;
+	for (int i = 0; i < segment_cnt; i++) {
+		char *e = strchr(s, '|');
+		if (e)
+			*e = 0;
+		(*pipedCmds)[i] = s;
+		s = e + 1;
+	}
+	return segment_cnt;
+}
+
+void destroy_pipesplits(char **s, int n) {
+	// the string pointers point to parts of a single large string
+	// hence doesnt need to be deallocated individually
+	free(s);
+}

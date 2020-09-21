@@ -25,4 +25,12 @@ char *intidir_to_tilda(char *s);
 
 int is_blankcmd(char *s);
 
+int countchar(char *s, char c);
+
+void destroy_pipesplits(char **s, int n);
+
+int split_by_pipes(char *inp, char ***pipedCmds);
+// inp is segment bw ';' and the func returns array of strings separated by pipes
+// return value is no. of segments
+
 #endif
