@@ -38,7 +38,8 @@ command *create_command(char *inp) {
 		if (strcmp(cmd->args[i], ">>") == 0) {
 			fd = open(cmd->args[i + 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
 			if (fd < 0) {
-				perror("could not set redirection 'append'");
+				fprintf(stderr, "error in  redirection 'append'. File given: %s\n", cmd->args[i + 1]);
+				perror("error");
 				destory_command(cmd);
 				return NULL;
 			} else {
@@ -52,7 +53,8 @@ command *create_command(char *inp) {
 		} else if (strcmp(cmd->args[i], ">") == 0) {
 			fd = open(cmd->args[i + 1], O_WRONLY | O_TRUNC | O_CREAT, 0644);
 			if (fd < 0) {
-				perror("could not set redirection 'out'");
+				fprintf(stderr, "error in  redirection 'out'. File given: %s\n", cmd->args[i + 1]);
+				perror("error");
 				destory_command(cmd);
 				return NULL;
 			} else {
@@ -67,7 +69,8 @@ command *create_command(char *inp) {
 		} else if (strcmp(cmd->args[i], "<") == 0) {
 			fd = open(cmd->args[i + 1], O_RDONLY);
 			if (fd < 0) {
-				perror("could not set redirection 'in'");
+				fprintf(stderr, "error in  redirection 'in'. File given: %s\n", cmd->args[i + 1]);
+				perror("error");
 				destory_command(cmd);
 				return NULL;
 
