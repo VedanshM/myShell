@@ -1,7 +1,7 @@
 #include "readexec.h"
-#include "bgprocess.h"
 #include "builtins.h"
 #include "format.h"
+#include "jobs.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
@@ -99,7 +99,7 @@ int execute_child(command *cmd) {
 			signal(SIGTTOU, SIG_DFL);
 
 		} else {
-			make_bg(cmd, forkpid);
+			make_bg_job(cmd, forkpid);
 		}
 	}
 	return 0;
