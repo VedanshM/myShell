@@ -17,5 +17,6 @@ int jobs(command *cmd);
 int kjob(command *cmd);
 int fg(command *cmd);
 int bg(command *cmd);
+int overkill(command *cmd);
 
 #endif

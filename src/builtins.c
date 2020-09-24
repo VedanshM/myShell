@@ -1,7 +1,7 @@
 #include "builtins.h"
 #include <string.h>
 
-#define BUILTIN_CNT 14
+#define BUILTIN_CNT 15
 typedef int (*builtin_func_t)(command *cmd);
 
 const char *shellBuiltins[BUILTIN_CNT] = {
@@ -18,6 +18,7 @@ const char *shellBuiltins[BUILTIN_CNT] = {
 	"kjob",
 	"fg",
 	"bg",
+	"overkill",
 	"quit",
 };
 builtin_func_t builtin_funcs[BUILTIN_CNT] = {
@@ -34,6 +35,7 @@ builtin_func_t builtin_funcs[BUILTIN_CNT] = {
 	kjob,
 	fg,
 	bg,
+	overkill,
 	quit,
 };
 

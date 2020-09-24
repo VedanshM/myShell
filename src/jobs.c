@@ -177,3 +177,16 @@ int bg(command *cmd) {
 	}
 	return 0;
 }
+
+int overkill(command *cmd) {
+	if (cmd->argc != 1) {
+		fprintf(stderr, "Incorrect usage of overkill: no arguments should be provided.\n");
+		return -1;
+	}
+	for (int i = joblist_len - 1; i >= 0; i--) {
+		kill(job_list[i].pid, SIGKILL);
+		remove_bg_job_handler(0); // signal handler idk why not executed this automatically in some cases
+		usleep(500);			  // for signal handler to finish
+	}
+	return 0;
+}
