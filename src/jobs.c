@@ -16,14 +16,14 @@
 job_t *job_list;
 ssize_t joblist_len = 0, joblist_buflen = 0;
 
-int make_bg_job(command *cmd, pid_t pid) {
+int add_bg_joblist(command *cmd, pid_t pid) {
 	/** 
      *  the process is supposed to already be blocked from stdin
      *  this function only does to add this in a dynamic array
      *  for future refrence
      */
 #ifdef DEBUG
-	fprintf(stderr, "[entered make_bg_job]\n");
+	fprintf(stderr, "[entered add_bg_joblist]\n");
 #endif
 
 	if (!job_list || joblist_buflen == 0) {
@@ -35,7 +35,7 @@ int make_bg_job(command *cmd, pid_t pid) {
 	}
 	job_list[joblist_len++] = (job_t){.commandName = strdup(cmd->args[0]), .pid = pid};
 #ifdef DEBUG
-	fprintf(stderr, "[exiting make_bg_job]\n");
+	fprintf(stderr, "[exiting add_bg_joblist]\n");
 #endif
 
 	return 0;
