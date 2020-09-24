@@ -151,11 +151,15 @@ int fg(command *cmd) {
 		fprintf(stderr, "no command with job number %d\n", jobno);
 		return -1;
 	}
-	if (kill(job_list[jobno].pid, SIGCONT) != 0) {
+	job_t *ptr = remove_bg_joblist(job_list[jobno].pid);
+	int pid = ptr->pid;
+	free(ptr->commandName);
+	free(ptr);
+	if (kill(pid, SIGCONT) != 0) {
 		perror("could not set process running");
 		return -1;
 	}
-	return wait_for_pid(job_list[jobno].pid);
+	return wait_for_pid(pid);
 }
 
 int bg(command *cmd) {
