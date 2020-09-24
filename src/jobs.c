@@ -2,6 +2,7 @@
 #include "command.h"
 #include "format.h"
 #include "prompt.h"
+#include "signals.h"
 #include "sysinfo.h"
 #include <fcntl.h>
 #include <signal.h>
@@ -26,7 +27,7 @@ int add_bg_joblist(command *cmd, pid_t pid) {
 	fprintf(stderr, "[entered add_bg_joblist]\n");
 #endif
 
-	if (!job_list || joblist_buflen == 0) {
+	if (!job_list || !joblist_buflen) {
 		job_list = realloc(job_list, 2 * sizeof(job_t));
 		joblist_buflen = 2;
 	} else if (joblist_len == joblist_buflen) {
@@ -41,6 +42,21 @@ int add_bg_joblist(command *cmd, pid_t pid) {
 	return 0;
 }
 
+job_t *remove_bg_joblist(pid_t pid) {
+	if (!job_list)
+		return NULL;
+	for (int i = 0; i < joblist_len; i++) {
+		if (pid == job_list[i].pid) {
+			job_t *ptr = malloc(sizeof(job_t));
+			*ptr = job_list[i]; // commandname still needs to be freed
+			memmove(job_list + i, job_list + i + 1, sizeof(job_t) * (joblist_len - 1 - i));
+			joblist_len--;
+			return ptr;
+		}
+	}
+	return NULL;
+}
+
 int wait_for_pid(pid_t pid) {
 	//here pid is a child which is in separate proc grp with gid = its pid
 	signal(SIGTTIN, SIG_IGN); // to prevent defalut behaviour of killing process
@@ -52,30 +68,6 @@ int wait_for_pid(pid_t pid) {
 	signal(SIGTTIN, SIG_DFL);
 	signal(SIGTTOU, SIG_DFL);
 	return 0;
-}
-
-void remove_bg_job_handler(int sig) {
-	int status;
-	pid_t deadpid = waitpid(-1, &status, WNOHANG);
-	if (deadpid > 0) {
-		char *cmdname;
-		for (int i = 0; i < joblist_len; i++) {
-			if (deadpid == job_list[i].pid) {
-				cmdname = job_list[i].commandName;
-				memmove(job_list + i, job_list + i + 1, sizeof(job_t) * (joblist_len - 1 - i));
-				joblist_len--;
-				printf("\r" CLEAR_AFTER);
-				fflush(stdout);
-				fprintf(stderr, "%s with pid %d exited %s\n", cmdname, deadpid,
-						((WIFEXITED(status) ? "normally" : "abnormally")));
-				prompt();
-				fflush(stderr);
-				fflush(stdout);
-				free(cmdname);
-				return;
-			}
-		}
-	}
 }
 
 int jobs(command *cmd) {
@@ -96,7 +88,12 @@ int jobs(command *cmd) {
 		read(fd, tmp, 64);
 		tmp[64] = 0;
 		char state[16], st;
-		sscanf(strstr(tmp, "State:") + 7, "%c", &st);
+		char *ptr = strstr(tmp, "State:");
+		if (!ptr) {
+			fprintf(stderr, "process %d not found\n.", pid);
+			continue;
+		}
+		sscanf(ptr + 7, "%c", &st);
 		switch (st) {
 		case 'R':
 			strcpy(state, "running");
