@@ -17,7 +17,7 @@ $(TARGET): $(OBJECTS)
 
 include $(DFILES)
 
-debug:CFLAGS+= -g -DDEBUG
+debug:CFLAGS+= -g -DDEBUG -fsanitize=address -fno-omit-frame-pointer
 debug: $(TARGET)
 
 $(DEP_DIR)/%.d: $(SRC_DIR)/%.c

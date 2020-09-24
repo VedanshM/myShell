@@ -23,14 +23,15 @@ command *create_command(char *inp) {
 		cmd->args[i] = strdup(c); //free at bottom
 		c = strtok_r(NULL, " ", &saveptr);
 	}
+	free(s);
 	cmd->in_fd = -1;
 	cmd->out_fd = -1;
 	if (strcmp(cmd->args[cmd->argc - 1], "&") == 0) {
 		cmd->is_bg = 1;
 		free(cmd->args[cmd->argc - 1]);
-		cmd->args[cmd->argc - 1] = NULL;
 		cmd->argc--;
-		cmd->args = realloc(cmd->args, 1 + cmd->argc);
+		cmd->args = realloc(cmd->args, (sizeof(char *) * (1 + cmd->argc)));
+		cmd->args[cmd->argc] = NULL;
 	} else
 		cmd->is_bg = 0;
 	for (int i = 0; i < cmd->argc - 1; /* update in loop */) {

@@ -41,14 +41,14 @@ char *add_req_spaces(char *s) {
 		char *findstart = s;
 		while ((pos = strstr(findstart, specstr[i]))) {
 			if (pos - s > 0 && *(pos - 1) != ' ') {
-				memmove(pos + 1, pos, (s + n) - pos);
+				memmove(pos + 1, pos, n + 1 - (pos - s));
 				*(pos) = ' ';
 				n++;
 				pos++;
 			}
 			if (*(pos + 1) && *(pos + 1) != ' ') {
 				char *nxt = pos + strlen(specstr[i]);
-				memmove(nxt + 1, nxt, (s + n) - nxt);
+				memmove(nxt + 1, nxt, n + 1 - (nxt - s));
 				*nxt = ' ';
 				n++;
 			}

@@ -11,12 +11,17 @@
 #include <unistd.h>
 
 int read_n_exec() {
+#ifdef DEBUG
+	fprintf(stderr, "[entered read_n_exec]\n");
+#endif
 	const char *delim = ";";
 	char *buf = NULL, *saveptr;
 	size_t bufsz = 0;
 	int n = getline(&buf, &bufsz, stdin); //freed at bottom
-	if (n < 0)
+	if (n < 0) {
+		free(buf);
 		return 1;
+	}
 	pushHist(buf);
 	buf[n - 1] = 0;
 	char *command = strtok_r(buf, delim, &saveptr);
@@ -25,10 +30,17 @@ int read_n_exec() {
 		command = strtok_r(NULL, delim, &saveptr);
 	}
 	free(buf);
+#ifdef DEBUG
+	fprintf(stderr, "[exiting read_n_exec]\n");
+#endif
 	return 0;
 }
 
 int execute_semicolon_splits(char *s) {
+#ifdef DEBUG
+	fprintf(stderr, "[entered execute_semicolon_splits]\n");
+#endif
+
 	char **piped_segments;
 	int segcnt = split_by_pipes(s, &piped_segments);
 
@@ -55,11 +67,18 @@ int execute_semicolon_splits(char *s) {
 	dup2(orgSTDOUT, STDOUT_FILENO);
 	close(orgSTDIN);  //open only in stdin now
 	close(orgSTDOUT); //open only in stdout now
+#ifdef DEBUG
+	fprintf(stderr, "[exiting execute_semicolon_splits]\n");
+#endif
 	return 0;
 }
 
 int execute_pipe_splits(char *s) {
 	// s to be freed by caller
+#ifdef DEBUG
+	fprintf(stderr, "[entered execute_pipe_splits]\n");
+#endif
+
 	command *cmd = create_command(s);
 	if (!cmd) { // only spaces provided
 		return 0;
@@ -72,10 +91,17 @@ int execute_pipe_splits(char *s) {
 	}
 	resetRedirection(oldfd);
 	destory_command(cmd);
+#ifdef DEBUG
+	fprintf(stderr, "[exiting execute_pipe_splits]\n");
+#endif
+
 	return 0;
 }
 
 int execute_child(command *cmd) {
+#ifdef DEBUG
+	fprintf(stderr, "[entered exec_child]\n");
+#endif
 	int forkpid = fork();
 	if (forkpid < 0) { //error in fork no child created
 		fprintf(stderr, "Couldn't execute %s\n", cmd->args[0]);
@@ -88,19 +114,16 @@ int execute_child(command *cmd) {
 			exit(1);
 		}
 	} else { // in parent process
-		if (!cmd->is_bg) {
-			signal(SIGTTIN, SIG_IGN); // to prevent defalut behaviouur of killing process
-			signal(SIGTTOU, SIG_IGN);
-			tcsetpgrp(0, forkpid); //giving control to child
-			int status;
-			waitpid(forkpid, &status, WUNTRACED); //waiting for child to finish
-			tcsetpgrp(0, getpgrp());			  // taking control back
-			signal(SIGTTIN, SIG_DFL);
-			signal(SIGTTOU, SIG_DFL);
-
-		} else {
+		setpgid(forkpid, forkpid);
+		if (cmd->is_bg) {
 			make_bg_job(cmd, forkpid);
+		} else {
+			wait_for_pid(forkpid);
 		}
 	}
+#ifdef DEBUG
+	fprintf(stderr, "[exiting exec_child]\n");
+#endif
+
 	return 0;
 }

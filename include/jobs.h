@@ -8,7 +8,14 @@ typedef struct job_t {
 	pid_t pid;
 } job_t;
 
-void make_bg_job(command *cmd, pid_t pid);
+int wait_for_pid(pid_t pid);
+// for foreground running of child proces pauses the shell
+int make_bg_job(command *cmd, pid_t pid);
 void remove_bg_job_handler(int sig);
+
+int jobs(command *cmd);
+int kjob(command *cmd);
+int fg(command *cmd);
+int bg(command *cmd);
 
 #endif
