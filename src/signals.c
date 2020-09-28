@@ -7,6 +7,13 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
+
+void init_sig_setup() {
+	signal(SIGCHLD, remove_bg_job_handler);
+	signal(SIGTSTP, tstp_handler);
+	signal(SIGINT, int_handler);
+}
 
 void remove_bg_job_handler(int sig) {
 	int status;
@@ -27,6 +34,14 @@ void remove_bg_job_handler(int sig) {
 	}
 }
 
-void init_sig_setup() {
-	signal(SIGCHLD, remove_bg_job_handler);
+void int_handler(int sig) {
+	write(STDOUT_FILENO, "\n", 1);
+	prompt();
+	fflush(stdout);
+}
+
+void tstp_handler(int sig) {
+	write(STDOUT_FILENO, "\n", 1);
+	prompt();
+	fflush(stdout);
 }
