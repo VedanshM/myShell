@@ -22,7 +22,6 @@ void remove_bg_job_handler(int sig) {
 		prompt();
 		fflush(stderr);
 		fflush(stdout);
-		free(jb->commandName);
 		free(jb);
 		return;
 	}

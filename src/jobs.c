@@ -17,7 +17,7 @@
 job_t *job_list;
 ssize_t joblist_len = 0, joblist_buflen = 0;
 
-int add_bg_joblist(command *cmd, pid_t pid) {
+int add_bg_joblist(pid_t pid, const char *proc_name) {
 	/** 
      *  the process is supposed to already be blocked from stdin
      *  this function only does to add this in a dynamic array
@@ -27,6 +27,15 @@ int add_bg_joblist(command *cmd, pid_t pid) {
 	fprintf(stderr, "[entered add_bg_joblist]\n");
 #endif
 
+	char tmp[PATHMAX];
+	sprintf(tmp, "/proc/%d/status", pid);
+	int fd = open(tmp, O_RDONLY);
+	if (fd == -1) {
+		fprintf(stderr, "process %d: status file could not be read", pid);
+		perror("error in adding to job list");
+		return -1;
+	}
+
 	if (!job_list || !joblist_buflen) {
 		job_list = realloc(job_list, 2 * sizeof(job_t));
 		joblist_buflen = 2;
@@ -34,11 +43,20 @@ int add_bg_joblist(command *cmd, pid_t pid) {
 		job_list = realloc(job_list, 2 * joblist_buflen * sizeof(job_t));
 		joblist_buflen *= 2;
 	}
-	job_list[joblist_len++] = (job_t){.commandName = strdup(cmd->args[0]), .pid = pid};
+
+	job_list[joblist_len] = (job_t){.pid = pid};
+	if (!proc_name) {
+		lseek(fd, strlen("Name:"), SEEK_SET);
+		read(fd, tmp, 32);
+		sscanf(tmp, "%s", job_list[joblist_len].commandName);
+		//acc to linux standards scanned name will fit in array
+	} else
+		strcpy(job_list[joblist_len].commandName, proc_name);
+
+	joblist_len++;
 #ifdef DEBUG
 	fprintf(stderr, "[exiting add_bg_joblist]\n");
 #endif
-
 	return 0;
 }
 
@@ -63,10 +81,17 @@ int wait_for_pid(pid_t pid) {
 	signal(SIGTTOU, SIG_IGN);
 	tcsetpgrp(STDIN_FILENO, pid); //giving control to child
 	int status;
-	waitpid(pid, &status, WUNTRACED);	//waiting for child to stop or terminate
-	tcsetpgrp(STDIN_FILENO, getpgrp()); // taking control back
+	int ret = waitpid(pid, &status, WUNTRACED); //waiting for child to stop or terminate
+	tcsetpgrp(STDIN_FILENO, getpgrp());			// taking control back
 	signal(SIGTTIN, SIG_DFL);
 	signal(SIGTTOU, SIG_DFL);
+
+	if (ret == -1)
+		return -1;
+
+	if (WIFSTOPPED(status))
+		add_bg_joblist(pid, NULL);
+
 	return 0;
 }
 
@@ -153,7 +178,6 @@ int fg(command *cmd) {
 	}
 	job_t *ptr = remove_bg_joblist(job_list[jobno].pid);
 	int pid = ptr->pid;
-	free(ptr->commandName);
 	free(ptr);
 	if (kill(pid, SIGCONT) != 0) {
 		perror("could not set process running");
@@ -187,7 +211,6 @@ int overkill(command *cmd) {
 	for (int i = joblist_len - 1; i >= 0; i--) {
 		kill(job_list[i].pid, SIGKILL);
 		remove_bg_job_handler(0); // signal handler idk why not executed this automatically in some cases
-		usleep(500);			  // for signal handler to finish
 	}
 	return 0;
 }

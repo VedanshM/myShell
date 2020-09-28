@@ -116,7 +116,7 @@ int execute_child(command *cmd) {
 	} else { // in parent process
 		setpgid(forkpid, forkpid);
 		if (cmd->is_bg) {
-			add_bg_joblist(cmd, forkpid);
+			add_bg_joblist(forkpid, cmd->args[0]);
 		} else {
 			wait_for_pid(forkpid);
 		}
