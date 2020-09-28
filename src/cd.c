@@ -7,30 +7,37 @@
 #include <unistd.h>
 
 int cd(command *cmd) {
+	static char last_wd[PATHMAX] = {0};
+	if (last_wd[0] == '\0')
+		strcpy(last_wd, get_pwd());
 	if (cmd->argc != 1 && cmd->argc != 2) {
 		printf("cd should have only 1 or 0 args\n");
 		return -1;
 	}
-	if (cmd->argc == 2) {
-		char *dir = process_path(cmd->args[1], 0);
-
-		if (chdir(dir) == -1) {
-			fprintf(stderr, "Directory provided :%s \n", dir);
-			perror("Error in cd");
-			free(dir);
-			return -1;
-		}
-		free(dir);
-
-	} else {
-		if (chdir(initdir) == -1) {
-			fprintf(stderr, "Directory provided :%s \n", initdir);
-			perror("Error in cd");
-			return -1;
-		}
+	char *destdir;
+	int ret = 0, echo = 0;
+	if (cmd->argc == 1) {
+		destdir = strdup(initdir);
+	} else if (cmd->argc == 2) {
+		if (strcmp(cmd->args[1], "-") == 0) {
+			echo = 1;
+			destdir = strdup(last_wd);
+		} else
+			destdir = process_path(cmd->args[1], 0);
 	}
-
-	return 0;
+	char tmp[PATHMAX];
+	strcpy(tmp, get_pwd());
+	if (chdir(destdir) == -1) {
+		fprintf(stderr, "Directory provided :%s \n", destdir);
+		perror("Error in cd");
+		ret = -1;
+	} else {
+		strcpy(last_wd, tmp);
+		if (echo)
+			printf("%s\n", intidir_to_tilda(destdir));
+	}
+	free(destdir);
+	return ret;
 }
 
 int pwd(command *cmd) {
