@@ -17,6 +17,10 @@
 int l, a, echoDir;
 
 int ls(command *cmd) {
+#ifdef DEBUG
+	fprintf(stderr, "[entered ls]\n");
+#endif
+
 	int argc = cmd->argc;
 	char **args = cmd->args;
 	l = 0, a = 0;
@@ -42,19 +46,25 @@ int ls(command *cmd) {
 	if (no_of_paths == 0) {
 		ls_dir(".");
 		printf("\n");
-		return 0;
-	}
+	} else
+		for (int i = 1; i < argc; i++) {
+			if (isOpt[i])
+				continue;
+			ls_indv(args[i]);
+			printf("\n");
+		}
+#ifdef DEBUG
+	fprintf(stderr, "[exiting execute_pipe_splits]\n");
+#endif
 
-	for (int i = 1; i < argc; i++) {
-		if (isOpt[i])
-			continue;
-		ls_indv(args[i]);
-		printf("\n");
-	}
 	return 0;
 }
 
 int ls_indv(char *arg) {
+#ifdef DEBUG
+	fprintf(stderr, "[entered ls_indv for %s]\n", arg);
+#endif
+
 	char *path = process_path(arg, 0);
 	struct stat st;
 	stat(path, &st);
@@ -65,17 +75,25 @@ int ls_indv(char *arg) {
 		ret = ls_file(path);
 	}
 	free(path);
+#ifdef DEBUG
+	fprintf(stderr, "[exiting ls_indv for %s]\n", arg);
+#endif
+
 	return ret;
 }
 
 int ls_file(char *fil) { //can handle dirs too for -l compatibilty
+#ifdef DEBUG
+	fprintf(stderr, "[entered ls_file for %s]\n", fil);
+#endif
+
 	char *tmp = realpath(fil, NULL);
+	int ret = 0;
 	if (tmp == NULL) {
 		fprintf(stderr, "Couldn't ls: %s\n", fil);
 		perror("error");
-		return -1;
-	}
-	if (l == 0) {
+		ret = -1;
+	} else if (l == 0) {
 		printf("%s ", basename(fil));
 	} else {
 		struct stat st;
@@ -113,16 +131,26 @@ int ls_file(char *fil) { //can handle dirs too for -l compatibilty
 			   basename(fil));
 	}
 	free(tmp);
-	return 0;
+#ifdef DEBUG
+	fprintf(stderr, "[exiting ls_file for %s]\n", fil);
+#endif
+	return ret;
 }
 
 int ls_dir(char *dirpath) {
+#ifdef DEBUG
+	fprintf(stderr, "[entered ls_dir for %s]\n", dirpath);
+#endif
+
 	if (echoDir)
 		printf("%s:\n", dirpath);
 	DIR *dir = opendir(dirpath);
 	if (dir == NULL) {
 		fprintf(stderr, "Error in ls of: %s", dirpath);
 		perror("error:");
+#ifdef DEBUG
+		fprintf(stderr, "[exiting with ERROR: ls_dir for %s]\n", dirpath);
+#endif
 		return -1;
 	}
 	closedir(dir);
@@ -149,6 +177,10 @@ int ls_dir(char *dirpath) {
 		free(entries[i]);
 	}
 	free(entries);
+
+#ifdef DEBUG
+	fprintf(stderr, "[exiting ls_dir for %s]\n", dirpath);
+#endif
 	return 0;
 }
 
@@ -161,7 +193,7 @@ int filter_hidden(const struct dirent *fil) {
 size_t fileBlocks(char *fil) {
 	char *tmp = process_path(fil, 1);
 	struct stat st;
-	if (stat(tmp, &st) == -1) {
+	if (lstat(tmp, &st) == -1) {
 		fprintf(stderr, "can't access : %s\n", fil);
 		perror("error");
 		free(tmp);
