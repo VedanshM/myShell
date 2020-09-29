@@ -112,7 +112,7 @@ int ls_file(char *fil) { //can handle dirs too for -l compatibilty
 			   tm + 4,
 			   basename(fil));
 	}
-
+	free(tmp);
 	return 0;
 }
 
@@ -133,7 +133,7 @@ int ls_dir(char *dirpath) {
 		perror("error:");
 		return -1;
 	}
-	char *fullpath = malloc(PATHMAX * sizeof(char));
+	char fullpath[PATHMAX] = {0};
 	strcat(strcpy(fullpath, dirpath), "/");
 	int n = strlen(fullpath);
 	if (l) {
@@ -146,7 +146,9 @@ int ls_dir(char *dirpath) {
 
 	for (int i = 0; i < nof; i++) {
 		ls_file(strcpy(fullpath + n, entries[i]->d_name) - n);
+		free(entries[i]);
 	}
+	free(entries);
 	return 0;
 }
 
