@@ -25,7 +25,7 @@ void remove_bg_job_handler(int sig) {
 		printf("\r" CLEAR_AFTER);
 		fflush(stdout);
 		fprintf(stderr, "%s with pid %d exited %s\n", jb->commandName, deadpid,
-				((WIFEXITED(status) ? "normally" : "abnormally")));
+				((WIFEXITED(status) && WEXITSTATUS(status) == EXIT_SUCCESS) ? "normally" : "abnormally"));
 		prompt();
 		fflush(stderr);
 		fflush(stdout);

@@ -33,7 +33,7 @@ int add_bg_joblist(pid_t pid, const char *proc_name) {
 	if (fd == -1) {
 		fprintf(stderr, "process %d: status file could not be read", pid);
 		perror("error in adding to job list");
-		return -1;
+		return 1;
 	}
 
 	if (!job_list || !joblist_buflen) {
@@ -81,24 +81,27 @@ int wait_for_pid(pid_t pid) {
 	signal(SIGTTOU, SIG_IGN);
 	tcsetpgrp(STDIN_FILENO, pid); //giving control to child
 	int status;
-	int ret = waitpid(pid, &status, WUNTRACED); //waiting for child to stop or terminate
-	tcsetpgrp(STDIN_FILENO, getpgrp());			// taking control back
+	int retpid = waitpid(pid, &status, WUNTRACED); //waiting for child to stop or terminate
+	tcsetpgrp(STDIN_FILENO, getpgrp());			   // taking control back
 	signal(SIGTTIN, SIG_DFL);
 	signal(SIGTTOU, SIG_DFL);
 
-	if (ret == -1)
-		return -1;
+	if (retpid == -1)
+		return 1;
 
-	if (WIFSTOPPED(status))
+	if (WIFSTOPPED(status)) {
 		add_bg_joblist(pid, NULL);
+		return 1;
+	} else if (WIFEXITED(status) && WEXITSTATUS(status) == EXIT_SUCCESS)
+		return 0;
 
-	return 0;
+	return 1;
 }
 
 int jobs(command *cmd) {
 	if (cmd->argc != 1) {
 		fprintf(stderr, "jobs command takes no arguments\n");
-		return -1;
+		return 1;
 	}
 	char tmp[PATHMAX];
 	for (int i = 0; i < joblist_len; i++) {
@@ -147,21 +150,21 @@ int jobs(command *cmd) {
 int kjob(command *cmd) {
 	if (cmd->argc != 3) {
 		fprintf(stderr, "kjob takes only 2 inputs\n");
-		return -1;
+		return 1;
 	}
 	int jobno = atoi(cmd->args[1]) - 1,
 		signo = atoi(cmd->args[2]);
 	if (jobno >= joblist_len || jobno < 0) {
 		fprintf(stderr, "no command with job number %d\n", jobno);
-		return -1;
+		return 1;
 	}
 	if (signo >= 32 || signo < 0) {
 		fprintf(stderr, "no such signal exists\n");
-		return -1;
+		return 1;
 	}
 	if (kill(job_list[jobno].pid, signo) != 0) {
 		perror("error in kjob");
-		return -1;
+		return 1;
 	}
 	return 0;
 }
@@ -169,19 +172,19 @@ int kjob(command *cmd) {
 int fg(command *cmd) {
 	if (cmd->argc != 2) {
 		fprintf(stderr, "fg requires exactly one argument.\n");
-		return -1;
+		return 1;
 	}
 	int jobno = atoi(cmd->args[1]) - 1;
 	if (jobno >= joblist_len || jobno < 0) {
 		fprintf(stderr, "no command with job number %d\n", jobno);
-		return -1;
+		return 1;
 	}
 	job_t *ptr = remove_bg_joblist(job_list[jobno].pid);
 	int pid = ptr->pid;
 	free(ptr);
 	if (kill(pid, SIGCONT) != 0) {
 		perror("could not set process running");
-		return -1;
+		return 1;
 	}
 	return wait_for_pid(pid);
 }
@@ -189,16 +192,16 @@ int fg(command *cmd) {
 int bg(command *cmd) {
 	if (cmd->argc != 2) {
 		fprintf(stderr, "bg requires exactlty one argument\n");
-		return -1;
+		return 1;
 	}
 	int jobno = atoi(cmd->args[1]) - 1;
 	if (jobno >= joblist_len || jobno < 0) {
 		fprintf(stderr, "no command with job number %d\n", jobno);
-		return -1;
+		return 1;
 	}
 	if (kill(job_list[jobno].pid, SIGCONT) != 0) {
 		perror("could not set process running");
-		return -1;
+		return 1;
 	}
 	return 0;
 }
@@ -206,11 +209,14 @@ int bg(command *cmd) {
 int overkill(command *cmd) {
 	if (cmd->argc != 1) {
 		fprintf(stderr, "Incorrect usage of overkill: no arguments should be provided.\n");
-		return -1;
+		return 1;
 	}
+	int ret = 0;
 	for (int i = joblist_len - 1; i >= 0; i--) {
-		kill(job_list[i].pid, SIGKILL);
-		remove_bg_job_handler(0); // signal handler idk why not executed this automatically in some cases
+		if (kill(job_list[i].pid, SIGKILL) == 0)
+			remove_bg_job_handler(0); // signal handler is slow in same cases
+		else
+			ret = 1;
 	}
-	return 0;
+	return ret;
 }

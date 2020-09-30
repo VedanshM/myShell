@@ -21,13 +21,12 @@ int history(command *cmd) {
 	int n = HISTSIZE;
 	if (cmd->argc > 2) {
 		fprintf(stderr, "Only 1 argument allowed\n");
-		return -1;
+		return 1;
 	} else if (cmd->argc == 2) {
-		errno = 0;
-		n = strtol(cmd->args[1], NULL, 10);
-		if (errno != 0) {
-			perror("error in history");
-			return -1;
+		n = atoi(cmd->args[1]);
+		if (n == 0 && cmd->args[1][0] != '0') {
+			fprintf(stderr, "error: %s not number\n", cmd->args[1]);
+			return 1;
 		}
 		if (n > HISTFILESIZE) {
 			printf("Only %d commands are stored!!\n", HISTFILESIZE);
@@ -35,7 +34,7 @@ int history(command *cmd) {
 		}
 	}
 	if (n <= 0 || line_start == -1)
-		return 0;
+		return 1;
 	// now there is atleast one command to be shown
 	// from a non empty hist
 

@@ -42,9 +42,9 @@ builtin_func_t builtin_funcs[BUILTIN_CNT] = {
 int exec_builtin(command *cmd) {
 	for (int i = 0; i < BUILTIN_CNT; i++) {
 		if (strcmp(shellBuiltins[i], cmd->args[0]) == 0) {
-			builtin_funcs[i](cmd);
-			return 1;
+			int ret = builtin_funcs[i](cmd);
+			return (ret == 0) ? 0 : 1;
 		}
 	}
-	return 0;
+	return -1;
 }

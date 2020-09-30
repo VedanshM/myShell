@@ -2,6 +2,7 @@
 #include "builtins.h"
 #include "format.h"
 #include "jobs.h"
+#include "prompt.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
@@ -26,7 +27,7 @@ int read_n_exec() {
 	buf[n - 1] = 0;
 	char *command = strtok_r(buf, delim, &saveptr);
 	while (command) {
-		execute_semicolon_splits(command);
+		last_exec_status = execute_semicolon_splits(command);
 		command = strtok_r(NULL, delim, &saveptr);
 	}
 	free(buf);
@@ -46,20 +47,20 @@ int execute_semicolon_splits(char *s) {
 
 	int orgSTDIN = dup(STDIN_FILENO), orgSTDOUT = dup(STDOUT_FILENO);
 
-	int pipe_fds[2];
+	int pipe_fds[2], ret = 0;
 	for (int i = 0; i < segcnt; i++) {
 		//stdin set properly only tweek stdout
 		if (i != segcnt - 1) {
 			pipe(pipe_fds);
 			dup2(pipe_fds[1], STDOUT_FILENO);
 			close(pipe_fds[1]); //open only in stdout now
-			execute_pipe_splits(piped_segments[i]);
+			ret = execute_pipe_splits(piped_segments[i]);
 			dup2(pipe_fds[0], STDIN_FILENO);
 			close(pipe_fds[0]); //open only in stdin now
 
 		} else {
 			dup2(orgSTDOUT, STDOUT_FILENO);
-			execute_pipe_splits(piped_segments[i]);
+			ret = execute_pipe_splits(piped_segments[i]);
 		}
 	}
 	destroy_pipesplits(piped_segments, segcnt);
@@ -70,7 +71,7 @@ int execute_semicolon_splits(char *s) {
 #ifdef DEBUG
 	fprintf(stderr, "[exiting execute_semicolon_splits]\n");
 #endif
-	return 0;
+	return ret;
 }
 
 int execute_pipe_splits(char *s) {
@@ -86,22 +87,24 @@ int execute_pipe_splits(char *s) {
 
 	int oldfd[2];
 	setRedirection(cmd, oldfd);
-	if (!exec_builtin(cmd)) {
-		execute_child(cmd);
+	int ret = 0;
+	if ((ret = exec_builtin(cmd)) == -1) {
+		ret = execute_child(cmd);
 	}
 	resetRedirection(oldfd);
 	destory_command(cmd);
 #ifdef DEBUG
-	fprintf(stderr, "[exiting execute_pipe_splits]\n");
+	fprintf(stderr, "[exiting execute_pipe_splits with code: %d]\n", ret);
 #endif
 
-	return 0;
+	return ret;
 }
 
 int execute_child(command *cmd) {
 #ifdef DEBUG
 	fprintf(stderr, "[entered exec_child]\n");
 #endif
+	int ret = 0;
 	int forkpid = fork();
 	if (forkpid < 0) { //error in fork no child created
 		fprintf(stderr, "Couldn't execute %s\n", cmd->args[0]);
@@ -117,13 +120,14 @@ int execute_child(command *cmd) {
 		setpgid(forkpid, forkpid);
 		if (cmd->is_bg) {
 			add_bg_joblist(forkpid, cmd->args[0]);
+			ret = 0;
 		} else {
-			wait_for_pid(forkpid);
+			ret = wait_for_pid(forkpid);
 		}
 	}
 #ifdef DEBUG
 	fprintf(stderr, "[exiting exec_child]\n");
 #endif
 
-	return 0;
+	return ret;
 }

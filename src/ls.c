@@ -43,6 +43,7 @@ int ls(command *cmd) {
 	}
 	echoDir = (no_of_paths > 1) ? 1 : 0;
 
+	int ret = 0;
 	if (no_of_paths == 0) {
 		ls_dir(".");
 		printf("\n");
@@ -50,14 +51,14 @@ int ls(command *cmd) {
 		for (int i = 1; i < argc; i++) {
 			if (isOpt[i])
 				continue;
-			ls_indv(args[i]);
+			ret += ls_indv(args[i]);
 			printf("\n");
 		}
 #ifdef DEBUG
 	fprintf(stderr, "[exiting execute_pipe_splits]\n");
 #endif
 
-	return 0;
+	return (ret == 0) ? 0 : 1;
 }
 
 int ls_indv(char *arg) {
@@ -67,12 +68,15 @@ int ls_indv(char *arg) {
 
 	char *path = process_path(arg, 0);
 	struct stat st;
-	stat(path, &st);
 	int ret = 0;
-	if (S_ISDIR(st.st_mode)) {
-		ret = ls_dir(path);
+	if (stat(path, &st) == -1) {
+		ret = 1;
 	} else {
-		ret = ls_file(path);
+		if (S_ISDIR(st.st_mode)) {
+			ret = ls_dir(path);
+		} else {
+			ret = ls_file(path);
+		}
 	}
 	free(path);
 #ifdef DEBUG
@@ -92,12 +96,13 @@ int ls_file(char *fil) { //can handle dirs too for -l compatibilty
 	if (tmp == NULL) {
 		fprintf(stderr, "Couldn't ls: %s\n", fil);
 		perror("error");
-		ret = -1;
+		ret = 1;
 	} else if (l == 0) {
 		printf("%s ", basename(fil));
 	} else {
 		struct stat st;
-		stat(tmp, &st);
+		if (stat(tmp, &st) == -1)
+			ret = 1;
 		char permsymbols[] = "rwx";
 		char perms[11] = "-"
 						 "---"
@@ -151,7 +156,7 @@ int ls_dir(char *dirpath) {
 #ifdef DEBUG
 		fprintf(stderr, "[exiting with ERROR: ls_dir for %s]\n", dirpath);
 #endif
-		return -1;
+		return 1;
 	}
 	closedir(dir);
 	struct dirent **entries = NULL;
@@ -159,7 +164,7 @@ int ls_dir(char *dirpath) {
 	if (nof == -1) {
 		fprintf(stderr, "Error in scaning of: %s", dirpath);
 		perror("error:");
-		return -1;
+		return 1;
 	}
 	char fullpath[PATHMAX] = {0};
 	strcat(strcpy(fullpath, dirpath), "/");

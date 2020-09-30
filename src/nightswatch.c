@@ -34,6 +34,10 @@ int nightswatch(command *cmd) {
 		return 1;
 	}
 	int n = atoi(cmd->args[2]);
+	if (n == 0 && strcmp(cmd->args[2], "0") != 0) {
+		fprintf(stderr, "error: %s not a number.\n", cmd->args[2]);
+		return 1;
+	}
 
 	for (int i = 0; i < SUPPORTED_OPT_COUNT; i++) {
 		if (strcmp(cmd->args[3], options[i]) == 0) {

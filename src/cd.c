@@ -12,7 +12,7 @@ int cd(command *cmd) {
 		strcpy(last_wd, get_pwd());
 	if (cmd->argc != 1 && cmd->argc != 2) {
 		printf("cd should have only 1 or 0 args\n");
-		return -1;
+		return 1;
 	}
 	char *destdir;
 	int ret = 0, echo = 0;
@@ -30,7 +30,7 @@ int cd(command *cmd) {
 	if (chdir(destdir) == -1) {
 		fprintf(stderr, "Directory provided :%s \n", destdir);
 		perror("Error in cd");
-		ret = -1;
+		ret = 1;
 	} else {
 		strcpy(last_wd, tmp);
 		if (echo)
