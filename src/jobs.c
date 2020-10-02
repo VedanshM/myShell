@@ -214,7 +214,7 @@ int overkill(command *cmd) {
 	int ret = 0;
 	for (int i = joblist_len - 1; i >= 0; i--) {
 		if (kill(job_list[i].pid, SIGKILL) == 0)
-			remove_bg_job_handler(0); // signal handler is slow in same cases
+			usleep(5000); // signal handler is slow in same cases
 		else
 			ret = 1;
 	}
