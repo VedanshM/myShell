@@ -37,9 +37,47 @@ int read_n_exec() {
 	return 0;
 }
 
-int execute_semicolon_splits(char *s) {
+int execute_semicolon_splits(char *inp) {
 #ifdef DEBUG
 	fprintf(stderr, "[entered execute_semicolon_splits]\n");
+#endif
+
+	char *dp = strdup(inp);
+	char *s = inp;
+	int ex_next = 1, ret = 0;
+	char *e;
+	while (ex_next) {
+		char *eand = strchr(s, '@');
+		char *eor = strchr(s, '$');
+		if (!eand)
+			e = eor;
+		else if (!eor)
+			e = eand;
+		else
+			e = (eand - s < eor - s) ? eand : eor;
+		if (!e)
+			break;
+		char c = *e;
+		*e = 0;
+		int ret = execute_one_term(s);
+		if (c == '@')
+			ex_next = (ret == 0) ? 1 : 0;
+		else
+			ex_next = (ret == 0) ? 0 : 1;
+		s = e + 1;
+	}
+	if (ex_next)
+		ret = execute_one_term(s);
+	free(dp);
+#ifdef DEBUG
+	fprintf(stderr, "[exiting execute_semicolon_splits: %d]\n", ret);
+#endif
+	return ret;
+}
+
+int execute_one_term(char *s) {
+#ifdef DEBUG
+	fprintf(stderr, "[entered execute_one_term]\n");
 #endif
 
 	char **piped_segments;
@@ -69,7 +107,7 @@ int execute_semicolon_splits(char *s) {
 	close(orgSTDIN);  //open only in stdin now
 	close(orgSTDOUT); //open only in stdout now
 #ifdef DEBUG
-	fprintf(stderr, "[exiting execute_semicolon_splits]\n");
+	fprintf(stderr, "[exiting execute_one_term: %d]\n", ret);
 #endif
 	return ret;
 }

@@ -6,8 +6,10 @@
 int read_n_exec();
 //scans a line from stdin and divides into commands and execs them using other funcs
 
-int execute_semicolon_splits(char *s);
+int execute_semicolon_splits(char *inp);
 //consider s to start and end by ';'
+
+int execute_one_term(char *s);
 
 int execute_pipe_splits(char *s);
 // assumes s to be bounded by '|'
